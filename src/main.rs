@@ -7,54 +7,64 @@ mod ui;
 fn main() {
     //create_window();
 
-    let grid =[[3, 0, 6, 5, 0, 8, 4, 0, 0],
-               [5, 2, 0, 0, 0, 0, 0, 0, 0],
-               [0, 8, 7, 0, 0, 0, 0, 3, 1],
-               [0, 0, 3, 0, 1, 0, 0, 8, 0],
-               [9, 0, 0, 8, 6, 3, 0, 0, 5],
-               [0, 5, 0, 0, 9, 0, 6, 0, 0],
-               [1, 3, 0, 0, 0, 0, 2, 5, 0],
-               [0, 0, 0, 0, 0, 0, 0, 7, 4],
-               [0, 0, 5, 2, 0, 6, 3, 0, 0]];
+    let mut  grid =[[3, 0, 6, 5, 0, 8, 4, 0, 0],
+                   [5, 2, 0, 0, 0, 0, 0, 0, 0],
+                   [0, 8, 7, 0, 0, 0, 0, 3, 1],
+                   [0, 0, 3, 0, 1, 0, 0, 8, 0],
+                   [9, 0, 0, 8, 6, 3, 0, 0, 5],
+                   [0, 5, 0, 0, 9, 0, 6, 0, 0],
+                   [1, 3, 0, 0, 0, 0, 2, 5, 0],
+                   [0, 0, 0, 0, 0, 0, 0, 7, 4],
+                   [0, 0, 5, 2, 0, 6, 3, 0, 0]];
 
-    //let (ans, b) = solve_sudoku(grid);
-    let (b, e) = find_empty(grid);
-    println!("We have a solution? {:?}", );
+    let b = solve_sudoku(&mut grid);
+    //let (b, e) = find_empty(grid);
+    println!("We have a solution? {:?}", b);
+    if b {
+        for i in 0..9{
+            println!("{:?}", grid[i]);
+        }
+    }
     
 }
 
 type Sudoku = [[u8; 9]; 9];
 type Elem = [usize; 2];
 
-pub fn solve_sudoku(s: Sudoku) -> (Sudoku, bool) {
-    let mut sudoku = s;
-    let (empty_loc, is_empty) = find_empty(sudoku);
+pub fn solve_sudoku(sudoku: &mut Sudoku) -> bool {
+    let mut loc = [0, 0];
+    let is_empty = find_empty(*sudoku, &mut loc);
 
     // No more empty places. We done!
     if !is_empty {
-        return (sudoku, true);
+        return true;
     }
 
     for num in 1..10{
-        if check_loc_safe(sudoku, num, empty_loc){
-            sudoku[empty_loc[1]][empty_loc[1]] = num;
+        if check_loc_safe(*sudoku, num, loc){
+            sudoku[loc[0]][loc[1]] = num;
 
-            let (ans, b) = solve_sudoku(sudoku);
+            let b = solve_sudoku(sudoku);
             if b {
-                return (ans, true)
+                return true
             }
             else {
-                sudoku[empty_loc[0]][empty_loc[1]] = 0;
+                sudoku[loc[0]][loc[1]] = 0;
             }
         }
     }
 
-    (sudoku, false)
+    false
 }
 
 pub fn used_in_row(sudoku: Sudoku, row: usize, e: u8) -> bool{
-    if sudoku[row].contains(&e){
-        return true;
+    //if sudoku[row].contains(&e){
+    //    return true;
+    //}
+    for i in 0..9{
+        if sudoku[row][i] == e {
+            return true;
+        }
     }
 
     false
@@ -71,12 +81,9 @@ pub fn used_in_col(sudoku: Sudoku, col: usize, e: u8) -> bool{
 }
 
 pub fn used_in_box(sudoku: Sudoku, loc: Elem, e: u8) -> bool{
-    let box_row = loc[0] - (loc[0] % 3);
-    let box_col = loc[1] - (loc[1] % 3);
-
     for i in 0..3{
         for j in 0..3{
-            if sudoku[i + box_row * 3][j + box_col] == e{
+            if sudoku[i + loc[0]][j + loc[1]] == e{
                 return true;
             }
         }
@@ -85,20 +92,21 @@ pub fn used_in_box(sudoku: Sudoku, loc: Elem, e: u8) -> bool{
     false
 }
 
-pub fn find_empty(sudoku: Sudoku) -> (Elem, bool) {
+pub fn find_empty(sudoku: Sudoku, loc: &mut Elem) -> bool {
     for i in 0..9{
         for j in 0..9{
             if sudoku[i][j] == 0 {
-                return ([i, j], true);
+                *loc = [i, j];
+                return true;
             }
         }
     }
 
-    ([0, 0], false)
+    false
 }
 
 pub fn check_loc_safe(sudoku: Sudoku, e: u8, loc: Elem) -> bool {
     !used_in_row(sudoku, loc[0], e)
         && !used_in_col(sudoku, loc[1], e)
-        && !used_in_box(sudoku, loc, e)
+        && !used_in_box(sudoku, [loc[0] - loc[0] % 3, loc[1] - loc[1] % 3], e)
 }
