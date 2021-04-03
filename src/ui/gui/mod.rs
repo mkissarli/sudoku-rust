@@ -15,13 +15,13 @@ macro_rules! ig_make_label {
 }
 
 pub struct State {
-    sudoku: [[u8; 9]; 9],
+    sudoku: [[i32; 9]; 9],
     notify_text: &'static str,
 }
 
 pub fn create_window(){
     let mut state = State{
-        sudoku: [[0; 9]; 9],
+        sudoku: [[9; 9]; 9],
         notify_text: "",
     };
     
@@ -39,6 +39,15 @@ pub fn sudoku_ui(ui: &Ui, state: &mut State) {
 
         ui.text(state.notify_text);
 
+        for i in 0..9 {
+            for j in 0..9{
+                ui.input_int(ig_make_label!("Box", format!("{},{}", i, j)), &mut state.sudoku[i][j]);
+                //ui.same_line_with_spacing();
+            }
+            ui.new_line()
+            
+        }
+        
         if ui.button(im_str!("Solve!"), [90.0, 30.0]) {
         }
     });

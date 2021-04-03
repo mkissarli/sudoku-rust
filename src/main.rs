@@ -1,11 +1,11 @@
 mod ui;
 
-//use ui::gui::{ create_window };
+use ui::gui::{ create_window };
 //use ui::console::{ create_terminal };
 
 
 fn main() {
-    //create_window();
+    create_window();
 
     let grid =[[3, 0, 6, 5, 0, 8, 4, 0, 0],
                [5, 2, 0, 0, 0, 0, 0, 0, 0],
@@ -28,7 +28,7 @@ fn main() {
     
 }
 
-type Sudoku = [[u8; 9]; 9];
+type Sudoku = [[i32; 9]; 9];
 type Elem = [usize; 2];
 
 pub fn solve_sudoku(s: Sudoku) -> (Sudoku, bool) {
@@ -42,7 +42,7 @@ pub fn solve_sudoku(s: Sudoku) -> (Sudoku, bool) {
 
     for num in 1..10{
         if check_loc_safe(sudoku, num, loc){
-            sudoku[loc[0]][loc[1]] = num;
+            sudoku[loc[0]][loc[1]] = num as i32;
 
             let (ans, b) = solve_sudoku(sudoku);
             if b {
@@ -62,7 +62,7 @@ pub fn used_in_row(sudoku: Sudoku, row: usize, e: u8) -> bool{
     //    return true;
     //}
     for i in 0..9{
-        if sudoku[row][i] == e {
+        if sudoku[row][i] == e as i32 {
             return true;
         }
     }
@@ -72,7 +72,7 @@ pub fn used_in_row(sudoku: Sudoku, row: usize, e: u8) -> bool{
 
 pub fn used_in_col(sudoku: Sudoku, col: usize, e: u8) -> bool{
     for i in 0..9{
-        if sudoku[i][col] == e{
+        if sudoku[i][col] == e as i32{
             return true;
         }
     }
@@ -83,7 +83,7 @@ pub fn used_in_col(sudoku: Sudoku, col: usize, e: u8) -> bool{
 pub fn used_in_box(sudoku: Sudoku, loc: Elem, e: u8) -> bool{
     for i in 0..3{
         for j in 0..3{
-            if sudoku[i + loc[0]][j + loc[1]] == e{
+            if sudoku[i + loc[0]][j + loc[1]] == e as i32{
                 return true;
             }
         }
